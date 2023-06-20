@@ -19,3 +19,11 @@ for delete
     "name": "apple"
   }
 ```
+
+### ToDo
+
+    Create an ID for each item so you can update and delete via /v1/groceries/{id}
+    Add a 404 route
+    Add error handling for malformatted JSON
+    Adjust the return messages for each route
+    Add test for each route with curls
