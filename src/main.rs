@@ -1,6 +1,7 @@
 mod controllers;
 mod store;
 
+use dotenv::dotenv;
 use warp::Filter;
 
 fn post_json_body() -> impl Filter<Extract = (store::Item,), Error = warp::Rejection> + Clone {
@@ -16,6 +17,11 @@ async fn main() {
     // Get /hello/warp => 200 Ok with body "Hello, {input}!"
     // prettier-ignore
     // let hello = warp::path!("hello" / String).map(|name| format!("Hello, {}!", name));
+
+    dotenv().ok();
+
+    let test_env_str = std::env::var("TEST_ENV_STR").expect("TEST_ENV_STR must be set!");
+    println!("ENV VAR: {}", test_env_str);
 
     let store = store::Store::new();
     let store_filter = warp::any().map(move || store.clone());
