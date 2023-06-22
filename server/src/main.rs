@@ -1,7 +1,12 @@
+#[allow(warnings, unused)]
+pub mod db;
+
 mod controllers;
 mod store;
 
+use crate::db::*;
 use dotenv::dotenv;
+use prisma_client_rust::NewClientError;
 use warp::Filter;
 
 fn post_json_body() -> impl Filter<Extract = (store::Item,), Error = warp::Rejection> + Clone {
@@ -20,8 +25,14 @@ async fn main() {
 
     dotenv().ok();
 
-    let test_env_str = std::env::var("TEST_ENV_STR").expect("TEST_ENV_STR must be set!");
-    println!("ENV VAR: {}", test_env_str);
+    // PRISMA CLIENT
+    let client = PrismaClient::_builder().build().await.unwrap();
+    client
+        .user()
+        .create("SebMaz".to_string(), vec![])
+        .exec()
+        .await
+        .expect("error creating user");
 
     let store = store::Store::new();
     let store_filter = warp::any().map(move || store.clone());
