@@ -1,5 +1,4 @@
 use crate::store::{Id, Item, Store};
-use std::collections::HashMap;
 use warp::http;
 
 pub async fn get_grocery_list(store: Store) -> Result<impl warp::Reply, warp::Rejection> {
