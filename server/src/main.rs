@@ -6,7 +6,7 @@ mod store;
 
 use crate::db::*;
 use dotenv::dotenv;
-use prisma_client_rust::NewClientError;
+// use prisma_client_rust::NewClientError;
 use warp::Filter;
 
 fn post_json_body() -> impl Filter<Extract = (store::Item,), Error = warp::Rejection> + Clone {
