@@ -11,7 +11,7 @@ pub async fn get_grocery_list(store: Store) -> Result<impl warp::Reply, warp::Re
 pub async fn update_grocery_list(
     item: Item,
     store: Store,
-    prisma_client: Arc<&PrismaClient>,
+    prisma_client: Arc<PrismaClient>,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     store.grocery_list.write().insert(item.name, item.quantity);
     Ok(warp::reply::with_status(
