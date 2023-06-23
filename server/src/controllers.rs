@@ -47,7 +47,7 @@ pub async fn delete_grocery_list_item(
     db: Arc<PrismaClient>,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     db.grocery_item()
-        .delete(grocery_item::id::equals(id.name))
+        .delete(grocery_item::id::equals(id.val))
         .exec()
         .await
         .expect("must provide correct ID");
