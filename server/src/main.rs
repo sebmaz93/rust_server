@@ -26,13 +26,16 @@ async fn main() {
     dotenv().ok();
 
     // PRISMA CLIENT
-    let client = PrismaClient::_builder().build().await.unwrap();
-    client
-        .user()
-        .create("SebMaz".to_string(), vec![])
-        .exec()
-        .await
-        .expect("error creating user");
+    // let client = PrismaClient::_builder()
+    //     .build()
+    //     .await
+    //     .expect("Prisma client must init.");
+    // client
+    //     .user()
+    //     .create("SebMaz".to_string(), vec![])
+    //     .exec()
+    //     .await
+    //     .expect("error creating user");
 
     let store = store::Store::new();
     let store_filter = warp::any().map(move || store.clone());
