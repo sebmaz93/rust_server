@@ -6,6 +6,8 @@ mod store;
 
 use crate::db::*;
 use dotenv::dotenv;
+use std::convert::Infallible;
+use std::sync::Arc;
 // use prisma_client_rust::NewClientError;
 use warp::Filter;
 
@@ -17,25 +19,24 @@ fn delete_json_body() -> impl Filter<Extract = (store::Id,), Error = warp::Rejec
     warp::body::content_length_limit(1024 * 16).and(warp::body::json())
 }
 
+fn with_prisma(
+    prisma_client: Arc<&PrismaClient>,
+) -> impl Filter<Extract = (Arc<&PrismaClient>,), Error = Infallible> + Clone {
+    warp::any().map(move || prisma_client.clone())
+}
+
 #[tokio::main]
 async fn main() {
+    dotenv().ok();
     // Get /hello/warp => 200 Ok with body "Hello, {input}!"
     // prettier-ignore
     // let hello = warp::path!("hello" / String).map(|name| format!("Hello, {}!", name));
 
-    dotenv().ok();
-
     // PRISMA CLIENT
-    // let client = PrismaClient::_builder()
-    //     .build()
-    //     .await
-    //     .expect("Prisma client must init.");
-    // client
-    //     .user()
-    //     .create("SebMaz".to_string(), vec![])
-    //     .exec()
-    //     .await
-    //     .expect("error creating user");
+    let client: PrismaClient = PrismaClient::_builder()
+        .build()
+        .await
+        .expect("Prisma client must start.");
 
     let store = store::Store::new();
     let store_filter = warp::any().map(move || store.clone());
@@ -46,6 +47,7 @@ async fn main() {
         .and(warp::path::end())
         .and(post_json_body())
         .and(store_filter.clone())
+        .and(with_prisma(Arc::new(&client).clone()))
         .and_then(controllers::update_grocery_list);
 
     let get_items = warp::get()
@@ -61,6 +63,7 @@ async fn main() {
         .and(warp::path::end())
         .and(post_json_body())
         .and(store_filter.clone())
+        .and(with_prisma(Arc::new(&client).clone()))
         .and_then(controllers::update_grocery_list);
 
     let delete_items = warp::delete()

@@ -1,4 +1,6 @@
+use crate::db::PrismaClient;
 use crate::store::{Id, Item, Store};
+use std::sync::Arc;
 use warp::http;
 
 pub async fn get_grocery_list(store: Store) -> Result<impl warp::Reply, warp::Rejection> {
@@ -9,12 +11,19 @@ pub async fn get_grocery_list(store: Store) -> Result<impl warp::Reply, warp::Re
 pub async fn update_grocery_list(
     item: Item,
     store: Store,
+    prisma_client: Arc<&PrismaClient>,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     store.grocery_list.write().insert(item.name, item.quantity);
     Ok(warp::reply::with_status(
         "Added items to grocery list",
         http::StatusCode::CREATED,
     ))
+    // client
+    //     .user()
+    //     .create("SebMaz".to_string(), vec![])
+    //     .exec()
+    //     .await
+    //     .expect("error creating user");
 }
 
 pub async fn delete_grocery_list_item(
