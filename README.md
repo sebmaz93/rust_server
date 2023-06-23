@@ -6,6 +6,8 @@ The app will run and you can add/update items by using HTTP request you can use 
 methods : post / get / put / delete
 
 body: raw (json)
+
+post / put
 ```json
   {
     "name": "apple",
@@ -13,16 +15,15 @@ body: raw (json)
   }
 ```
 
-for delete
+delete
 ```json
   {
-    "name": "apple"
+    "val": "id"
   }
 ```
 
 ### ToDo
 
-    Create an ID for each item so you can update and delete via /v1/groceries/{id}
     Add a 404 route
     Add error handling for malformatted JSON
     Adjust the return messages for each route
