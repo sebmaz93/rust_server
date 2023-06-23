@@ -29,7 +29,10 @@ pub async fn update_grocery_list_item(
     db: Arc<PrismaClient>,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     db.grocery_item()
-        .update(grocery_item::name::equals(item.name), vec![])
+        .update(
+            grocery_item::name::equals(item.name),
+            vec![grocery_item::quantity::set(item.quantity)],
+        )
         .exec()
         .await
         .expect("must provide correct params");
