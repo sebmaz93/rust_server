@@ -20,10 +20,6 @@ fn delete_json_body() -> impl Filter<Extract = (store::Id,), Error = warp::Rejec
 #[tokio::main]
 async fn main() {
     dotenv().ok();
-    // Get /hello/warp => 200 Ok with body "Hello, {input}!"
-    // prettier-ignore
-    // let hello = warp::path!("hello" / String).map(|name| format!("Hello, {}!", name));
-
     // PRISMA CLIENT
     let client: PrismaClient = PrismaClient::_builder()
         .build()
