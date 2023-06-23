@@ -1,38 +1,55 @@
+use crate::db::grocery_item;
 use crate::db::PrismaClient;
-use crate::store::{Id, Item, Store};
+use crate::store::{Id, Item};
 use std::sync::Arc;
 use warp::http;
 
-pub async fn get_grocery_list(store: Store) -> Result<impl warp::Reply, warp::Rejection> {
-    let result = store.grocery_list.read();
-    Ok(warp::reply::json(&*result))
-}
-
-pub async fn update_grocery_list(
+pub async fn add_grocery_list_item(
     item: Item,
-    store: Store,
-    prisma_client: Arc<PrismaClient>,
+    db: Arc<PrismaClient>,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    store.grocery_list.write().insert(item.name, item.quantity);
+    db.grocery_item()
+        .create(item.name, item.quantity, vec![])
+        .exec()
+        .await
+        .expect("must provide correct params");
     Ok(warp::reply::with_status(
         "Added items to grocery list",
         http::StatusCode::CREATED,
     ))
-    // client
-    //     .user()
-    //     .create("SebMaz".to_string(), vec![])
-    //     .exec()
-    //     .await
-    //     .expect("error creating user");
+}
+
+pub async fn get_grocery_list(db: Arc<PrismaClient>) -> Result<impl warp::Reply, warp::Rejection> {
+    let result = db.grocery_item().find_many(vec![]).exec().await.unwrap();
+    Ok(warp::reply::json(&result))
+}
+
+pub async fn update_grocery_list_item(
+    item: Item,
+    db: Arc<PrismaClient>,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    db.grocery_item()
+        .update(grocery_item::name::equals(item.name), vec![])
+        .exec()
+        .await
+        .expect("must provide correct params");
+    Ok(warp::reply::with_status(
+        "Updated item",
+        http::StatusCode::OK,
+    ))
 }
 
 pub async fn delete_grocery_list_item(
     id: Id,
-    store: Store,
+    db: Arc<PrismaClient>,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    store.grocery_list.write().remove(&id.name);
+    db.grocery_item()
+        .delete(grocery_item::id::equals(id.name))
+        .exec()
+        .await
+        .expect("must provide correct ID");
     Ok(warp::reply::with_status(
-        format!("Removed {} from grocery list", &id.name),
+        "Removed item",
         http::StatusCode::OK,
     ))
 }
