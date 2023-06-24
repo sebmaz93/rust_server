@@ -1,65 +1,23 @@
 #[allow(warnings, unused)]
-pub mod db;
+mod db;
+mod filters;
+mod handlers;
+mod models;
 
-mod controllers;
-mod store;
-
-use crate::db::*;
-use dotenv::dotenv;
-use std::sync::Arc;
+// use dotenv::dotenv;
+use models::{init_db, Db};
 use warp::Filter;
-
-fn post_json_body() -> impl Filter<Extract = (store::Item,), Error = warp::Rejection> + Clone {
-    warp::body::content_length_limit(1024 * 16).and(warp::body::json())
-}
-
-fn delete_json_body() -> impl Filter<Extract = (store::Id,), Error = warp::Rejection> + Clone {
-    warp::body::content_length_limit(1024 * 16).and(warp::body::json())
-}
 
 #[tokio::main]
 async fn main() {
-    dotenv().ok();
+    // dotenv().ok();
+
     // PRISMA CLIENT
-    let client: PrismaClient = PrismaClient::_builder()
-        .build()
-        .await
-        .expect("Prisma client must start.");
-    let client_c = Arc::new(client);
-    let prisma_filter = warp::any().map(move || client_c.clone());
+    let db: Db = init_db().await;
 
-    let add_items = warp::post()
-        .and(warp::path("v1"))
-        .and(warp::path("groceries"))
-        .and(warp::path::end())
-        .and(post_json_body())
-        .and(prisma_filter.clone())
-        .and_then(controllers::add_grocery_list_item);
+    let api = filters::grocery_items(db);
 
-    let get_items = warp::get()
-        .and(warp::path("v1"))
-        .and(warp::path("groceries"))
-        .and(warp::path::end())
-        .and(prisma_filter.clone())
-        .and_then(controllers::get_grocery_list);
-
-    let update_items = warp::put()
-        .and(warp::path("v1"))
-        .and(warp::path("groceries"))
-        .and(warp::path::end())
-        .and(post_json_body())
-        .and(prisma_filter.clone())
-        .and_then(controllers::update_grocery_list_item);
-
-    let delete_items = warp::delete()
-        .and(warp::path("v1"))
-        .and(warp::path("groceries"))
-        .and(warp::path::end())
-        .and(delete_json_body())
-        .and(prisma_filter.clone())
-        .and_then(controllers::delete_grocery_list_item);
-
-    let routes = add_items.or(get_items).or(update_items).or(delete_items);
+    let routes = api.with(warp::log("grocery"));
 
     warp::serve(routes).run(([127, 0, 0, 1], 3030)).await
 }
