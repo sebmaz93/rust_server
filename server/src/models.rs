@@ -15,7 +15,7 @@ pub async fn init_db() -> Db {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct GroceryItem {
-    pub id: String,
+    id: Option<String>,
     pub name: String,
     pub quantity: i32,
 }
