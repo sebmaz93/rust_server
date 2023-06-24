@@ -24,6 +24,10 @@ put -> http://localhost:3030/v1/groceries/{id}
 
 delete -> http://localhost:3030/v1/groceries/{id}
 
+header: { "authorization" : "Bearer admin" }
+
+-----
+
 ### ToDo
 
     Add a 404 route
