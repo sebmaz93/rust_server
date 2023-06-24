@@ -7,24 +7,25 @@ methods : post / get / put / delete
 
 body: raw (json)
 
-post / put
+post -> http://localhost:3030/v1/groceries
 ```json
   {
     "name": "apple",
     "quantity": 5
   }
 ```
-
-delete
+put -> http://localhost:3030/v1/groceries/{id}
 ```json
   {
-    "val": "id"
+    "name": "appleeee",
+    "quantity": 10
   }
 ```
+
+delete -> http://localhost:3030/v1/groceries/{id}
 
 ### ToDo
 
     Add a 404 route
     Add error handling for malformatted JSON
-    Adjust the return messages for each route
     Add test for each route with curls
