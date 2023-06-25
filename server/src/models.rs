@@ -15,6 +15,7 @@ pub async fn init_db() -> Db {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct GroceryItem {
+    #[serde(skip_serializing_if = "Option::is_none")]
     id: Option<String>,
     pub name: String,
     pub quantity: i32,
